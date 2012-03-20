@@ -1,0 +1,81 @@
+<?xml version='1.0' encoding='utf-8'?>
+<Server port="<%= portrange %>05" shutdown="SHUTDOWN">
+  <Listener className="org.apache.catalina.core.AprLifecycleListener" />
+  <Listener className="org.apache.catalina.core.JasperListener" />
+  <Listener className="org.apache.catalina.core.JreMemoryLeakPreventionListener" />
+  <Listener className="org.apache.catalina.mbeans.GlobalResourcesLifecycleListener" />
+  <Listener className="org.apache.catalina.core.ThreadLocalLeakPreventionListener" />
+  <GlobalNamingResources>
+    <Resource name="UserDatabase" auth="Container" type="org.apache.catalina.UserDatabase" description="User database that can be updated and saved" factory="org.apache.catalina.users.MemoryUserDatabaseFactory" pathname="conf/tomcat-users.xml" />
+  </GlobalNamingResources>
+
+  <Service name="Catalina">
+    <Connector port="<%= portrange %>80" protocol="HTTP/1.1" connectionTimeout="20000" redirectPort="<%= portrange %>43" />
+
+    <% if sso == true -%><!-- Tomcat authentication for intranet SSO -->
+    <Connector port="<%= portrange %>09" protocol="AJP/1.3" tomcatAuthentication="false"
+               packetSize="65536" redirectPort="<%= portrange %>43" />
+    <% else -%><Connector port="<%= portrange %>09" protocol="AJP/1.3" 
+               maxThreads="200" redirectPort="<%= portrange %>43" />
+    <% end -%>
+
+    <Engine name="Catalina" defaultHost="localhost" jvmRoute="<%= name %>">
+
+      <Host name="<%= vhostname %>.foo.bar" autoDeploy="false" deployOnStartup="false">
+        <Valve className="org.apache.catalina.valves.AccessLogValve" directory="logs" prefix="<%= vhostname %>." suffix=".txt" pattern="common" resolveHosts="false" />
+
+        <Context path="<% if webapp != "ROOT" -%><%= webapp %><% else -%><% end -%>" docBase="<%= wwwdir %>/webapps/<%= webapp %>" reloadable="false" >
+<% if mysql_cons != "none" %>
+          <!-- mysql --><% mysql_cons.each do |mysql_con| %>
+          <Resource name="jdbc/<%= mysql_con['jdbc'] %>"
+            type="javax.sql.DataSource" auth="Container" validationQuery="SELECT 1"
+            maxWait="20000"
+            maxActive="<%= mysql_con.fetch("max_active", "10") %>"
+            maxIdle="<%= mysql_con.fetch("max_idle", "2") %>"
+            initialSize="<%= mysql_con.fetch("init_size", "1") %>"
+            driverClassName="com.mysql.jdbc.Driver"
+            url="jdbc:mysql://<%= mysql_con['server'] %>/<%= mysql_con['db'] %>"
+            username="<%= mysql_con['user'] %>"
+            password="<%= mysql_con['password'] %>" />
+  <% end -%>
+<% end -%>
+<% if oracle_cons != "none" %>
+          <!-- oracle --><% oracle_cons.each do |oracle_con| %>
+          <Resource
+            name="jdbc/<%= oracle_con['jdbc'] %>"
+            auth="Container"
+            type="javax.sql.DataSource"
+            driverClassName="oracle.jdbc.OracleDriver"
+            url="jdbc:oracle:oci:@<%= oracle_con['db'] %>"
+            username="<%= oracle_con['user'] %>"
+            password="<%= oracle_con['password'] %>"
+            maxActive="<%= oracle_con.fetch("max_active", "20") %>"
+            maxIdle="<%= oracle_con.fetch("max_idle", "10") %>"
+            maxWait="-1"
+            validationQuery="SELECT 1 FROM DUAL" />
+  <% end -%>
+<% end -%>
+<% if ldap_res != "none" %>
+          <!-- ldap --><% ldap_res.each do |ldap| %>
+          <Resource name="ldap/<%= ldap['name'] %>" auth="Container" type="org.springframework.ldap.core.support.LdapContextSource"
+            url="<%= ldap['url'] %>"
+            factory="net.CHANGEME.web.base.jndi.ldap.LdapObjectFactory"
+            base="DC=IDM-APPID-<%= ldap['appid'] %>,DC=CHANGEME,DC=LOCAL"
+            pooled="true"
+            useRDn="CN=IMP-IDM-APPID-<%= ldap['appid'] %>_R,OU=IDM,DC=IDM-APPID-<%= ldap['appid'] %>,DC=CHANGEME,DC=LOCAL"
+            password="<%= ldap['password'] %>" />
+  <% end -%>
+<% end %>
+        </Context>
+      </Host> 
+
+      <Host name="localhost" appBase="webapps" unpackWARs="true" autoDeploy="true" xmlValidation="false" xmlNamespaceAware="false">
+        <Context path="" docBase="/usr/share/tomcat7/webapps/ROOT"/>
+      </Host>
+        <Realm className="org.apache.catalina.realm.LockOutRealm">
+          <Realm className="org.apache.catalina.realm.UserDatabaseRealm"
+                 resourceName="UserDatabase" digest="SHA"/>
+        </Realm>
+    </Engine>
+  </Service>
+</Server>
