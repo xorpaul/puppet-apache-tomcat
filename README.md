@@ -14,7 +14,7 @@ Copy folder to your puppet modulepath and apply the example config
 
 This should create 4 files in /tmp/ that should look like those files in the expected_output folder.
 
-
+<pre>
 = Class: puppet-apache-tomcat
 
 This class creates Apache Tomcat server.xml and Apache vhost.inc files.
@@ -60,3 +60,4 @@ $sso::   Gets used in the server.xml file for tomcatAuthentication="false" param
 
 == Sample Usage:
   See tests/example.pp
+</pre>
