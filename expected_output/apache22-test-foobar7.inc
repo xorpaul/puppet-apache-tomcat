@@ -1,14 +1,24 @@
 # puppet generated vHost for tomcat tc7_foobar
-<VirtualHost 123.456.678.900:81>
+<VirtualHost 123.456.678.901:81>
   ServerName test-foobar7.foo.bar
   ServerAlias test-foobar7
   ServerAdmin webmaster@foo.bar
 
   # Tomcat worker ########################################
-  JkWorkerProperty worker.list=tc7_foobar
-  JkWorkerProperty worker.tc7_foobar.type=worker.template
-  JkWorkerProperty worker.tc7_foobar.host=123.456.678.900
-  JkWorkerProperty worker.tc7_foobar.port=11409  
+  JkWorkerProperty worker.list=foobar900
+  JkWorkerProperty worker.foobar900.type=worker.template
+  JkWorkerProperty worker.foobar900.host=
+  JkWorkerProperty worker.foobar900.port=11409
+  ###
+  JkWorkerProperty worker.list=foobar901
+  JkWorkerProperty worker.foobar901.type=worker.template
+  JkWorkerProperty worker.foobar901.host=
+  JkWorkerProperty worker.foobar901.port=11409
+  ###
+  worker.list=lbfoobar
+  worker.lbfoobar.type=lb
+  worker.lbfoobar.balanced_workers=foobar900,foobar901,
+  worker.lbfoobar.sticky_session=1
   ########################################################
 
   DocumentRoot /tmp
@@ -30,7 +40,7 @@
   
   CookieName TRACKING
   CookieTracking on
-  CustomLog "|/usr/sbin/cronolog /var/log/apache22/test-foobar7.foo.bar-access.log.%Y-%m-%d.HOSTNAME" combined
+  CustomLog "|/usr/sbin/cronolog /var/log/apache22/test-foobar7.foo.bar-access.log.%Y-%m-%d.HOSTNAME" combined_cookie
   ErrorLog "|/usr/sbin/cronolog /var/log/apache22/test-foobar7.foo.bar-error.log.%Y-%m.HOSTNAME"
 </VirtualHost>
 

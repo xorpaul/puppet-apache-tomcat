@@ -14,7 +14,7 @@
     <Connector port="11809" protocol="AJP/1.3" 
                maxThreads="200" redirectPort="11843" />
     
-    <Engine name="Catalina" defaultHost="localhost" jvmRoute="tc6_foobar">
+    <Engine name="Catalina" defaultHost="localhost" jvmRoute="foobar">
       <Realm className="org.apache.catalina.realm.UserDatabaseRealm" resourceName="UserDatabase"/>
 
       <Host name="test-foobar6.foo.bar" autoDeploy="false" deployOnStartup="false">
