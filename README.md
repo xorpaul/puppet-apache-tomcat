@@ -16,10 +16,10 @@ This should create 4 files in /tmp/ that should look like those files in the exp
 
     puppet-apache-tomcat::cfg { "tc6_foobar":
       vhostname => 'test-foobar6',
+      worker => $worker,
       portrange => 118,
       prodlevel => 3,
       wwwdir => '/tmp/foobar6.foo.bar',
-      apache => 'apache22',
     }
 
     = Class: puppet-apache-tomcat
