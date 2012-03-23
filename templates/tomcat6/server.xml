@@ -18,7 +18,7 @@
                maxThreads="200" redirectPort="<%= portrange %>43" />
     <% end -%>
 
-    <Engine name="Catalina" defaultHost="localhost" jvmRoute="<%= name %>">
+    <Engine name="Catalina" defaultHost="localhost" jvmRoute="<%= name.split("_")[1] %>">
       <Realm className="org.apache.catalina.realm.UserDatabaseRealm" resourceName="UserDatabase"/>
 
       <Host name="<%= vhostname %>.foo.bar" autoDeploy="false" deployOnStartup="false">
@@ -26,45 +26,13 @@
 
         <Context path="<% if webapp != "ROOT" -%><%= webapp %><% else -%><% end -%>" docBase="<%= wwwdir %>/webapps/<%= webapp %>" reloadable="false" >
 <% if mysql_cons != "none" %>
-          <!-- mysql --><% mysql_cons.each do |mysql_con| %>
-          <Resource name="jdbc/<%= mysql_con['jdbc'] %>"
-            type="javax.sql.DataSource" auth="Container" validationQuery="SELECT 1"
-            maxWait="20000"
-            maxActive="<%= mysql_con.fetch("max_active", "10") %>"
-            maxIdle="<%= mysql_con.fetch("max_idle", "2") %>"
-            initialSize="<%= mysql_con.fetch("init_size", "1") %>"
-            driverClassName="com.mysql.jdbc.Driver"
-            url="jdbc:mysql://<%= mysql_con['server'] %>/<%= mysql_con['db'] %>"
-            username="<%= mysql_con['user'] %>"
-            password="<%= mysql_con['password'] %>" />
-  <% end -%>
+<%= scope.function_template("puppet-apache-tomcat/tomcat-ressources/mysql.erb") %>
 <% end -%>
 <% if oracle_cons != "none" %>
-          <!-- oracle --><% oracle_cons.each do |oracle_con| %>
-          <Resource
-            name="jdbc/<%= oracle_con['jdbc'] %>"
-            auth="Container"
-            type="javax.sql.DataSource"
-            driverClassName="oracle.jdbc.OracleDriver"
-            url="jdbc:oracle:oci:@<%= oracle_con['db'] %>"
-            username="<%= oracle_con['user'] %>"
-            password="<%= oracle_con['password'] %>"
-            maxActive="<%= oracle_con.fetch("max_active", "20") %>"
-            maxIdle="<%= oracle_con.fetch("max_idle", "10") %>"
-            maxWait="-1"
-            validationQuery="SELECT 1 FROM DUAL" />
-  <% end -%>
+<%= scope.function_template("puppet-apache-tomcat/tomcat-ressources/oracle.erb") %>
 <% end -%>
 <% if ldap_res != "none" %>
-          <!-- ldap --><% ldap_res.each do |ldap| %>
-          <Resource name="ldap/<%= ldap['name'] %>" auth="Container" type="org.springframework.ldap.core.support.LdapContextSource"
-            url="<%= ldap['url'] %>"
-            factory="net.CHANGEME.web.base.jndi.ldap.LdapObjectFactory"
-            base="DC=IDM-APPID-<%= ldap['appid'] %>,DC=CHANGEME,DC=LOCAL"
-            pooled="true"
-            useRDn="CN=IMP-IDM-APPID-<%= ldap['appid'] %>_R,OU=IDM,DC=IDM-APPID-<%= ldap['appid'] %>,DC=CHANGEME,DC=LOCAL"
-            password="<%= ldap['password'] %>" />
-  <% end -%>
+<%= scope.function_template("puppet-apache-tomcat/tomcat-ressources/ldap.erb") %>
 <% end %>
         </Context>
       </Host> 
