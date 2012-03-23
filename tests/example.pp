@@ -1,22 +1,27 @@
 # This is a simple smoke test
 # of the puppet-apache-tomcat resource type.
+
+ $worker = [ '123.456.678.900', '123.456.678.901' ]
+
 puppet-apache-tomcat::cfg { "tc6_foobar": 
   vhostname => 'test-foobar6',
+  worker => $worker,
   portrange => 118,
   prodlevel => 3,
   wwwdir => '/tmp/foobar6.foo.bar',
-  apache => 'apache22',
 }
 
 puppet-apache-tomcat::cfg { "tc7_foobar": 
   vhostname => 'test-foobar7',
+  worker => $worker,
   webapp => 'ROOT',
   portrange => 114,
   prodlevel => 3,
   wwwdir => '/tmp/foobar7.foo.bar',
-  apache => 'apache22',
-  apache_port => 81,
-  apache_logformat => 'combined_cookie',
+  apache => {
+    port => 81,
+    logformat => 'combined_cookie',
+  },
   sso => false,
   # default JVM parameter is Xmx=512m, as defined in the tomcat{6,7}.conf template
   # optional
