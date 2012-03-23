@@ -49,22 +49,21 @@ class puppet-apache-tomcat {
 
   define cfg($owner = 'root', $group = 'root', $mode = 644,
     $backup = false, $recurse = false, $ensure = file, $webapp = 'ROOT',
-    $apache = none, $apache_port = 80, $apache_logformat = 'combined', 
-    $mysql_cons = none, $ldap_res = none, $oracle_cons = none, 
-    $jvm_params = none, $java_opts = none, $vhost_cfg = none,
+    $apache = {}, $mysql_cons = none, $ldap_res = none, $oracle_cons = none, 
+    $jvm_params = none, $java_opts = none, $vhost_cfg = none, $worker,
     $vhostname, $portrange, $prodlevel, $wwwdir, $sso = false) {
 
       notify { "puppet-apache-tomcat ${name}": }
 
 
-      file { "/tmp/${apache}-${vhostname}.inc":
+      file { "/tmp/apache22-${vhostname}.inc":
               mode => $mode,
               owner => 'root',
               group => $group,
               backup => $backup,
               recurse => $recurse,
               ensure => present,
-              content => template("puppet-apache-tomcat/${apache}/tomcat-vhost.inc")
+              content => template("puppet-apache-tomcat/apache22/tomcat-vhost.inc")
       }
 
       case $name {
