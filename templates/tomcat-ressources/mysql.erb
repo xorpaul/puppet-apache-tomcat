@@ -1,0 +1,12 @@
+          <!-- mysql --><% mysql_cons.each do |mysql_con| %>
+          <Resource name="jdbc/<%= mysql_con['jdbc'] %>"
+            type="javax.sql.DataSource" auth="Container" validationQuery="SELECT 1"
+            maxWait="20000"
+            maxActive="<%= mysql_con.fetch("max_active", "10") %>"
+            maxIdle="<%= mysql_con.fetch("max_idle", "2") %>"
+            initialSize="<%= mysql_con.fetch("init_size", "1") %>"
+            driverClassName="com.mysql.jdbc.Driver"
+            url="jdbc:mysql://<%= mysql_con['server'] %>/<%= mysql_con['db'] %>"
+            username="<%= mysql_con['user'] %>"
+            password="<%= mysql_con['password'] %>" />
+  <% end -%>

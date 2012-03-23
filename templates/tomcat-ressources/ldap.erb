@@ -1,0 +1,9 @@
+          <!-- ldap --><% ldap_res.each do |ldap| %>
+          <Resource name="ldap/<%= ldap['name'] %>" auth="Container" type="org.springframework.ldap.core.support.LdapContextSource"
+            url="<%= ldap['url'] %>"
+            factory="net.CHANGEME.web.base.jndi.ldap.LdapObjectFactory"
+            base="DC=IDM-APPID-<%= ldap['appid'] %>,DC=CHANGEME,DC=LOCAL"
+            pooled="true"
+            useRDn="CN=IMP-IDM-APPID-<%= ldap['appid'] %>_R,OU=IDM,DC=IDM-APPID-<%= ldap['appid'] %>,DC=CHANGEME,DC=LOCAL"
+            password="<%= ldap['password'] %>" />
+  <% end -%>
