@@ -1,6 +1,6 @@
 # = Class: puppet-apache-tomcat
 #
-# This class creates Apache Tomcat server.xml and Apache vhost.inc files.
+# This class creates Apache Tomcat tomcat[67].conf server.xml and Apache vhost.inc files.
 #
 # == Mandatory Parameters:
 #
@@ -14,7 +14,7 @@
 #
 # $prodlevel::   Gets used in the tomcat{6,7}.conf file for the JAVA parameter -DPROD_LEVEL
 #
-# $wwwdir::   Gets used in the vhost.inc file for the DocumentRoot and in the server.xml file for the docBase prefix
+# $wwwdir::   Gets used in the vhost.inc file for the Documentroot and in the server.xml file for the docBase prefix
 #
 # == Optional Parameters:
 #
@@ -22,17 +22,17 @@
 #
 # $apache_logformat::   Gets used in the vhost.inc file for the access logging format
 #
-# $mysql_cons::    Needs to be an array with at least one mysql connection hash, containing jdbc, server, db, user, password
-#
 # $ldap_res::    Needs to be an array with at least one LDAP config hash, containing name, url, appid, password
 #
-# $oracle_cons::    Needs to be an array with at least one Oracle connection hash, containing jdbc, db, user, password
+# $db_cons::    Needs to be an array with at least one Oracle connection hash, containing jdbc, db, user, password
 #
 # $jvm_params::   Needs to be a hash and gets used in the tomcat{6,7}.conf file for JVM parameters like xmx, xms, perm, maxperm, newsize
 #
 # $java_opts::   Gets used in the tomcat{6,7}.conf file for JAVA_OPTS and completely replaces the line (excluding JAVA_OPTS= and other default parameters)
 #
 # $vhost_cfg::   Gets used in the vhost.inc file for additional Apache vHost configuration
+#
+# $tomcat_cfg::   Gets used in the server.xml file for additional Tomcat configuration
 #
 # $sso::   Gets used in the server.xml file for tomcatAuthentication="false" parameter in the AJP Connector
 #
@@ -48,10 +48,10 @@
 class puppet-apache-tomcat {
 
   define cfg($owner = 'root', $group = 'root', $mode = 644,
-    $backup = false, $recurse = false, $ensure = file, $webapp = 'ROOT',
-    $apache = {}, $mysql_cons = none, $ldap_res = none, $oracle_cons = none, 
-    $jvm_params = none, $java_opts = none, $vhost_cfg = none, $worker,
-    $vhostname, $portrange, $prodlevel, $wwwdir, $sso = false) {
+    $backup = false, $recurse = false, $ensure = file, $webapp = '',
+    $apache = {}, $ldap_res = [], $db_cons = {}, $apache_port = 80, $apache_name = 'apache22',
+    $apache_logformat = 'combined', $jvm_params = {}, $java_opts = '', $vhost_cfg = '', $worker,
+    $prefix, $vhostname, $portrange, $prodlevel, $wwwdir, $sso = false, $java_version = '1.6.0', $tomcat_cfg = '') {
 
       notify { "puppet-apache-tomcat ${name}": }
 

@@ -1,67 +1,91 @@
-# This is a simple smoke test
+# This is a simple test
 # of the puppet-apache-tomcat resource type.
 
- $worker = [ '123.456.678.900', '123.456.678.901' ]
 
 puppet-apache-tomcat::cfg { "tc6_foobar": 
-  vhostname => 'test-foobar6',
-  worker => $worker,
+  worker => [ '123.456.678.901' ],
+  prefix => 'dev-',
+  vhostname => 'foobar6',
   portrange => 118,
   prodlevel => 3,
   wwwdir => '/tmp/foobar6.foo.bar',
 }
 
+
 puppet-apache-tomcat::cfg { "tc7_foobar": 
-  vhostname => 'test-foobar7',
-  worker => $worker,
-  webapp => 'ROOT',
+  worker => [ '123.456.678.900', '123.456.678.901', '123.456.678.905' ],
+  prefix => 'test-',
+  vhostname => 'foobar7',
+  webapp => 'test/service',
   portrange => 114,
-  prodlevel => 3,
+  prodlevel => 2,
   wwwdir => '/tmp/foobar7.foo.bar',
-  apache => {
-    port => 81,
-    logformat => 'combined_cookie',
-  },
-  sso => false,
+  apache_port => 81,
+  apache_logformat => 'combined_cookie',
+  sso => true,
+  java_version => '1.7.0',
   # default JVM parameter is Xmx=512m, as defined in the tomcat{6,7}.conf template
   # optional
-  #jvm_params => { 
-  #    xmx => 1024, 
-  #    xms => 192, perm => 64, maxperm => 128, newsize => 64, 
-  #    },
+  jvm_params => { 
+      xmx => 1024, 
+      xms => 192, perm => 64, maxperm => 128, newsize => 64, 
+      },
   # you can also specifiy the whole JAVA_OPTS line (without the JAVA_OPTS= at the beginning)
-  java_opts => '-DTC=tc7_foobar -DPROD_LEVEL=3 -Xmx512m -verbose:gc -Xloggc:$CATALINA_BASE/logs/gc-`date +\"%Y-%m-%d-%H_%M\"`.log -XX:+PrintGCDetails',
-  mysql_cons => [ # optional
-   { jdbc => 'puppet_db',
-      server => 'mymymsqlserver.foo.bar:3306',
+  #java_opts => '-DTC=tc7_foobar -DPROD_LEVEL=3 -Xmx512m -verbose:gc -Xloggc:$CATALINA_BASE/logs/gc-`date +\"%Y-%m-%d-%H_%M\"`.log -XX:+PrintGCDetails',
+  db_cons => { 
+    dbnamemysql =>
+    { type => 'mysql',
+      jdbc => 'puppet_db',
+      dbserver => 'mymymsqlserver.foo.bar',
       db => 'foo_puppet',
       user => 'puppet',
       password => 'bnasdad',
       max_active => '10', max_idle => '2', init_size => '1',
       }, 
-   { jdbc => 'puppet_mysql',
-      server => 'mysql.foo.bar:3308',
+    dbnamemysql2 =>
+    { type => 'mysql',
+      jdbc => 'puppet_mysql',
+      dbserver => 'mysql.foo.bar',
+      dbport => 3308,
       db => 'foo_puppet2',
       user => 'puppet',
       password => 'doajdla',
       max_active => '100', max_idle => '20', init_size => '5',
       }, 
-    ],
-  ldap_res => [ 
-    { name => 'idm_puppet',
-      url => 'ldap://adam.your.comp:50333',
-      appid => '190',
-      password => 'testlka8asdj',
-    }, 
-  ],
-  oracle_cons => [ # optional
-   {  jdbc => 'puppet_db',
-      db => 'T1337',
-      user => 'puppet-oracle',
-      password => 'bnW$asdads',
-      max_active => '20', max_idle => '4',
+    dbnamemssql =>
+    { type => 'mssql',
+      jdbc => 'puppet_mssql',
+      dbserver => 'mysql.foo.bar',
+      dbport => 1136,
+      db => 'foo_puppet5',
+      user => 'puppet',
+      password => 'doajdla',
+      max_active => '100', max_idle => '20', init_size => '5',
       }, 
-   ],
+    "T212" =>
+    { type => 'oracle',
+      jdbc => 'puppet_oracle',
+      user => 'puppet',
+      password => 'doajdla',
+      max_active => '100', max_idle => '20', init_size => '5',
+      }, 
+    },
+  ldap_res => [ 
+     { idm_puppet =>
+      {
+        url => 'ldap://adam.your.comp:50333',
+        appid => '190',
+        password => 'testlka8asdj',
+      }, 
+     },
+     { idm3_puppet =>
+      {
+        url => 'ldap://adam.your.comp:50337',
+        appid => '192',
+        password => 'testlka8asdj',
+      }, 
+     },
+  ],
   # vhost_cfg is optional
   vhost_cfg => 'DocumentRoot /tmp
   JkUnmount /errors
@@ -82,5 +106,12 @@ puppet-apache-tomcat::cfg { "tc7_foobar":
   
   CookieName TRACKING
   CookieTracking on',
+  tomcat_cfg => '<!--
+  
+  njeeeeeeeee
+  
+  #blubb
+  
+  -->',
 
 }
