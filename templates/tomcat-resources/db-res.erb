@@ -1,0 +1,55 @@
+<% if db_cons != '' -%><% db_cons.each do |dbname, db_con| %>
+  <% if db_con['type'] == 'mysql' %>
+          <!-- mysql -->
+          <Resource name="jdbc/<%= db_con['jdbc'] %>"
+            type="javax.sql.DataSource" auth="Container" validationQuery="SELECT 1"
+            maxWait="20000"
+            maxActive="<%= db_con.fetch("max_active", "10") %>"
+            maxIdle="<%= db_con.fetch("max_idle", "2") %>"
+            initialSize="<%= db_con.fetch("init_size", "1") %>"
+            driverClassName="com.mysql.jdbc.Driver"
+            url="jdbc:mysql://<%= db_con['dbserver'] %>:<%= db_con.fetch("dbport", "3306") %>/<%= dbname %>"
+            username="<%= db_con['user'] %>"
+            password="<%= db_con['password'] %>" />
+  <% end -%>
+  <% if db_con['type'] == 'oracle' %>
+          <!-- oracle -->
+          <Resource
+            name="jdbc/<%= db_con['jdbc'] %>"
+            auth="Container" type="javax.sql.DataSource" maxWait="-1"
+            driverClassName="oracle.jdbc.OracleDriver"
+            url="jdbc:oracle:oci:@<%= dbname %>"
+            username="<%= db_con['user'] %>"
+            password="<%= db_con['password'] %>"
+            maxActive="<%= db_con.fetch("max_active", "20") %>"
+            maxIdle="<%= db_con.fetch("max_idle", "10") %>"
+            validationQuery="SELECT 1 FROM DUAL" />
+  <% end -%>
+  <% if db_con['type'] == 'mssql' %>
+          <!-- mssql -->
+          <Resource
+            name="jdbc/<%= db_con['jdbc'] %>"
+            auth="Container" type="javax.sql.DataSource" driverClassName="net.sourceforge.jtds.jdbc.Driver"
+            defaultAutoCommit="false" maxWait="-1"
+            url="jdbc:jtds:sqlserver://<%= db_con['dbserver'] %>.mssql.foo.bar:<%= db_con['dbport'] %>/<%= db_con['dbname'] %>;ssl=require"
+            username="<%= db_con['user'] %>"
+            password="<%= db_con['password'] %>"
+            maxActive="<%= db_con.fetch("max_active", "20") %>"
+            maxIdle="<%= db_con.fetch("max_idle", "3") %>"
+            initialSize="<%= db_con.fetch("init_size", "1") %>"
+            validationQuery="SELECT 1" />
+  <% end -%>
+<% end -%><% end -%>
+<% if ldap_res.count != 0 %>
+    <% ldap_res.each do |ldap| -%>
+        <% ldap.each do |ldapname, l| %>
+          <!-- ldap -->
+          <Resource name="ldap/<%= ldapname %>" auth="Container" type="org.springframework.ldap.core.support.LdapContextSource"
+            factory="net.foobar.web.base.jndi.ldap.LdapObjectFactory" pooled="true"
+            url="<%= l['url'] %>"
+            base="DC=IDM-APPID-<%= l['appid'] %>,DC=FOOBAR,DC=LOCAL"
+            useRDn="CN=IMP-IDM-APPID-<%= l['appid'] %>_R,OU=IDM,DC=IDM-APPID-<%= l['appid'] %>,DC=FOOBAR,DC=LOCAL"
+            password="<%= l['password'] %>" />
+        <% end -%>
+    <% end -%>
+<% end %>

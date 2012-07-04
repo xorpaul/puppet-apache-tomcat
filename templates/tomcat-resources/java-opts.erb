@@ -1,0 +1,10 @@
+<% if java_opts != '' -%>
+JAVA_OPTS="-DTC=<%= name %> -DPROD_LEVEL=<%= prodlevel %> <%= java_opts %> -XX:TargetSurvivorRatio=90 -verbose:gc -Xloggc:$CATALINA_BASE/logs/gc-`date +\"%Y-%m-%d-%H_%M\"`.log -XX:+PrintGCDetails -XX:+PrintGCTimeStamps -XX:-TraceClassUnloading -server -Djava.awt.headless=true"
+<% else -%>
+JAVA_OPTS="-DTC=<%= name %> -DPROD_LEVEL=<%= prodlevel %> -Xmx<% if jvm_params != '' -%><%= jvm_params.fetch("xmx", "512") %>m<% jvm_params.each do |key,value| -%>
+<% if key == 'xms' then -%> -Xms<%= value %>m<% end -%>
+<% if key == 'perm' then -%> -XX:PermSize=<%= value %>m<% end -%>
+<% if key == 'maxperm' then -%> -XX:MaxPermSize=<%= value %>m<% end -%>
+<% if key == 'newsize' then -%> -XX:NewSize=<%= value %>m<% end -%>
+<% end -%><% else -%>512m<% end -%> -XX:TargetSurvivorRatio=90 -verbose:gc -Xloggc:$CATALINA_BASE/logs/gc-`date +\"%Y-%m-%d-%H_%M\"`.log -XX:+PrintGCDetails -XX:+PrintGCTimeStamps -XX:+PrintTenuringDistribution -XX:-TraceClassUnloading -server -Djava.awt.headless=true"
+<% end -%>

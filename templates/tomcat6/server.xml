@@ -18,27 +18,33 @@
                maxThreads="200" redirectPort="<%= portrange %>43" />
     <% end -%>
 
-    <Engine name="Catalina" defaultHost="localhost" jvmRoute="<%= name.split("_")[1] %>">
+    <Engine name="Catalina" defaultHost="localhost" jvmRoute="<%= name.split("_")[1] %><%= ipaddress_eth0.split("\.")[3] %>">
       <Realm className="org.apache.catalina.realm.UserDatabaseRealm" resourceName="UserDatabase"/>
 
-      <Host name="<%= vhostname %>.foo.bar" autoDeploy="false" deployOnStartup="false">
-        <Valve className="org.apache.catalina.valves.AccessLogValve" directory="logs" prefix="<%= vhostname %>." suffix=".txt" pattern="common" resolveHosts="false" />
+      <Host name="<%= prefix %><%= vhostname %>.foo.bar" autoDeploy="false" deployOnStartup="false">
+        <Valve className="org.apache.catalina.valves.AccessLogValve" directory="logs" prefix="<%= prefix %><%= vhostname %>." suffix=".txt" pattern="common" resolveHosts="false" />
 
         <Context path="<% if webapp != "ROOT" -%><%= webapp %><% else -%><% end -%>" docBase="<%= wwwdir %>/webapps/<%= webapp %>" reloadable="false" >
-<% if mysql_cons != "none" %>
-<%= scope.function_template("puppet-apache-tomcat/tomcat-ressources/mysql.erb") %>
-<% end -%>
-<% if oracle_cons != "none" %>
-<%= scope.function_template("puppet-apache-tomcat/tomcat-ressources/oracle.erb") %>
-<% end -%>
-<% if ldap_res != "none" %>
-<%= scope.function_template("puppet-apache-tomcat/tomcat-ressources/ldap.erb") %>
+<%= scope.function_template("puppet-apache-tomcat/tomcat-resources/db-res.erb") -%>
+<% if ldap_res.count != 0 %>
+          <!-- ldap --><% ldap_res.each do |ldap| %>
+          <Resource name="ldap/<%= ldap['name'] %>" auth="Container" type="org.springframework.ldap.core.support.LdapContextSource"
+            url="<%= ldap['url'] %>"
+            factory="net.enbw.web.base.jndi.ldap.LdapObjectFactory"
+            base="DC=IDM-APPID-<%= ldap['appid'] %>,DC=ENBW,DC=LOCAL"
+            pooled="true"
+            useRDn="CN=IMP-IDM-APPID-<%= ldap['appid'] %>_R,OU=IDM,DC=IDM-APPID-<%= ldap['appid'] %>,DC=ENBW,DC=LOCAL"
+            password="<%= ldap['password'] %>" />
+  <% end -%>
 <% end %>
         </Context>
       </Host> 
 
       <Host name="localhost" appBase="webapps" unpackWARs="true" autoDeploy="true" xmlValidation="false" xmlNamespaceAware="false">
         <Context path="" docBase="/usr/share/tomcat6/webapps/ROOT"/>
+        <Context path="/manager" docBase="/usr/share/tomcat6/webapps/manager" privileged="true" antiResourceLocking="false" antiJARLocking="false">
+          <ResourceLink name="users" global="UserDatabase" type="org.apache.catalina.UserDatabase" digest="SHA"/>
+        </Context>
       </Host>
     </Engine>
   </Service>
