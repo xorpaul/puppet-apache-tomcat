@@ -14,19 +14,23 @@
     <Connector port="11809" protocol="AJP/1.3" 
                maxThreads="200" redirectPort="11843" />
     
-    <Engine name="Catalina" defaultHost="localhost" jvmRoute="foobar">
+    <Engine name="Catalina" defaultHost="localhost" jvmRoute="foobar98">
       <Realm className="org.apache.catalina.realm.UserDatabaseRealm" resourceName="UserDatabase"/>
 
-      <Host name="test-foobar6.foo.bar" autoDeploy="false" deployOnStartup="false">
-        <Valve className="org.apache.catalina.valves.AccessLogValve" directory="logs" prefix="test-foobar6." suffix=".txt" pattern="common" resolveHosts="false" />
+      <Host name="dev-foobar6.foo.bar" autoDeploy="false" deployOnStartup="false">
+        <Valve className="org.apache.catalina.valves.AccessLogValve" directory="logs" prefix="dev-foobar6." suffix=".txt" pattern="common" resolveHosts="false" />
 
-        <Context path="" docBase="/tmp/foobar6.foo.bar/webapps/ROOT" reloadable="false" >
+        <Context path="" docBase="/tmp/foobar6.foo.bar/webapps/" reloadable="false" >
+
 
         </Context>
       </Host> 
 
       <Host name="localhost" appBase="webapps" unpackWARs="true" autoDeploy="true" xmlValidation="false" xmlNamespaceAware="false">
         <Context path="" docBase="/usr/share/tomcat6/webapps/ROOT"/>
+        <Context path="/manager" docBase="/usr/share/tomcat6/webapps/manager" privileged="true" antiResourceLocking="false" antiJARLocking="false">
+          <ResourceLink name="users" global="UserDatabase" type="org.apache.catalina.UserDatabase" digest="SHA"/>
+        </Context>
       </Host>
     </Engine>
   </Service>
